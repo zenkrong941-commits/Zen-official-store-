@@ -17,8 +17,15 @@
       border: 1px solid rgba(255,255,255,0.08);
     }
     .card-hover:hover {
-      transform: translateY(-3px);
-      transition: 0.2s ease;
+      transform: translateY(-4px);
+      transition: 0.25s ease;
+    }
+    .hide-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scroll {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
   </style>
 </head>
@@ -63,6 +70,10 @@
           Top-Up Diamonds, UC, CP, Robux & More
         </h2>
 
+        <p class="mt-4 text-slate-300 text-lg max-w-xl">
+          Premium gaming recharge store for MLBB, BGMI, CODM, Roblox, HOK, Genshin and COC.
+        </p>
+
         <div class="mt-6 flex flex-wrap gap-3">
           <a href="#games" class="rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-6 py-3 font-bold">Shop Games</a>
           <a href="https://wa.me/916003028648" target="_blank" class="rounded-2xl border border-white/20 px-6 py-3 font-bold">Chat Support</a>
@@ -105,7 +116,7 @@
           class="w-full max-w-sm px-4 py-3 rounded-2xl bg-slate-900 border border-white/10 outline-none" />
       </div>
 
-      <div id="gameTabs" class="flex gap-4 overflow-x-auto pb-2"></div>
+      <div id="gameTabs" class="flex gap-4 overflow-x-auto pb-2 hide-scroll"></div>
     </div>
   </section>
 
@@ -393,6 +404,7 @@
         `;
         btn.onclick = () => {
           selectedGame = g;
+          selectedRegion = g.packs["India"] ? "India" : Object.keys(g.packs)[0];
           renderGames(searchInput.value);
           renderRegions();
           renderPacks();
@@ -403,7 +415,9 @@
 
     function renderRegions() {
       regionTabs.innerHTML = "";
-      regions.forEach(region => {
+      const availableRegions = Object.keys(selectedGame.packs);
+
+      availableRegions.forEach(region => {
         const btn = document.createElement("button");
         btn.className = `px-4 py-2 rounded-2xl border ${
           selectedRegion === region
@@ -423,27 +437,25 @@
     function renderPacks() {
       gameTitle.textContent = selectedGame.name;
       packsContainer.innerHTML = "";
-      const packs = selectedGame.packs[selectedRegion] || selectedGame.packs.Global || selectedGame.packs.India || [];
+
+      const packs = selectedGame.packs[selectedRegion] || [];
+
+      if (!packs.length) {
+        packsContainer.innerHTML = `
+          <div class="glass rounded-3xl p-6 text-slate-300">
+            No packs available for this region.
+          </div>
+        `;
+        return;
+      }
 
       packs.forEach((pack, i) => {
         const [label, price] = pack;
+
         const card = document.createElement("div");
+        card.className = "card-hover";
         card.innerHTML = `
-          <div class="rounded-[2rem] bg-gradient-to-br from-slate-900 to-slate-800 border border-white/10 overflow-hidden p-6 card-hover">
+          <div class="rounded-[2rem] bg-gradient-to-br from-slate-900 to-slate-800 border border-white/10 overflow-hidden p-6 h-full">
             <div class="flex items-start justify-between gap-4">
               <div>
-                <p class="text-sm text-cyan-300">${selectedRegion}</p>
-                <h4 class="text-2xl font-black mt-1">${label}</h4>
-              </div>
-              ${i < 3 ? `<span class="rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/20 px-3 py-1 text-xs">Best Seller</span>` : ""}
-            </div>
-            <div class="mt-6 flex items-end justify-between">
-              <div>
-                <p class="text-slate-400 text-sm">Price</p>
-                <div class="text-4xl font-black">₹${price}</div>
-              </div>
-              <button class="rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-5 py-3 font-bold">Buy Now</button>
-            </div>
-          </div>
-        `;
-        ca
+                <p class="text-sm text-cyan-300">${se
